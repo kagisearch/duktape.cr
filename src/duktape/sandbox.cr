@@ -155,5 +155,32 @@ module Duktape
       end
       LibDUK.eval_raw ctx, src, 0, flags
     end
+
+    def call(nargs : Int32)
+      if td = @timeout_data
+        td.start = Time.monotonic
+      end
+      require_valid_nargs nargs
+      require_valid_index -(nargs + 1) # function and args
+      LibDUK.pcall(ctx, nargs) == 0
+    end
+
+    def call_method(nargs : Int32)
+      if td = @timeout_data
+        td.start = Time.monotonic
+      end
+      require_valid_nargs nargs
+      require_valid_index -(nargs + 1) # function and args
+      LibDUK.pcall_method(ctx, nargs) == 0
+    end
+
+    def call_prop(index : LibDUK::Index, nargs : Int32)
+      if td = @timeout_data
+        td.start = Time.monotonic
+      end
+      require_valid_index index
+      require_valid_nargs nargs
+      LibDUK.pcall_prop(ctx, index, nargs) == 0
+    end
   end
 end
